@@ -1,0 +1,13 @@
+{
+  "name": "@kite-signal/observability",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "^2.11.0",
+    "@aws-lambda-powertools/metrics": "^2.11.0",
+    "@aws-lambda-powertools/tracer": "^2.11.0"
+  }
+}

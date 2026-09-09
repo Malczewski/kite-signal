@@ -1,0 +1,3 @@
+bucket         = "kite-signal-tfstate-CHANGE-ME"
+region         = "eu-central-1"
+dynamodb_table = "kite-signal-tf-locks"

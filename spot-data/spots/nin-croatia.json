@@ -1,0 +1,19 @@
+{
+  "spotId": "nin-croatia",
+  "name": "Nin",
+  "country": "HR",
+  "lat": 44.2397,
+  "lon": 15.1808,
+  "active": true,
+
+  "idealWindDirRange": [315, 45],
+  "usableWindDirRange": [300, 60],
+  "dangerousWindDirRanges": [],
+
+  "minWindKts": 8,
+  "idealWindKts": [14, 24],
+  "maxWindKts": 35,
+  "gustToleranceKts": 6,
+
+  "skillLevel": "beginner"
+}
