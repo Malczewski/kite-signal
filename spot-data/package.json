@@ -1,0 +1,15 @@
+{
+  "name": "@kite-signal/spot-data",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "seed": "tsx seed.ts"
+  },
+  "dependencies": {
+    "@kite-signal/db": "*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
+}

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+
+  terraform-fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      - run: terraform fmt -check -recursive infra
+
+  terraform-validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        root:
+          [
+            infra/bootstrap,
+            infra/envs/prod,
+            infra/modules/lambda-function,
+            infra/modules/dynamodb-table,
+            infra/modules/sqs-queue,
+            infra/modules/eventbridge-scheduler,
+            infra/modules/api-gateway-http,
+          ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      # No AWS credentials exist in CI yet, so this validates syntax/types/provider
+      # constraints only (no backend, no real plan). See docs/manual-setup.md for
+      # wiring up an actual `terraform plan` on PRs once an AWS account exists.
+      - run: terraform init -backend=false
+        working-directory: ${{ matrix.root }}
+      - run: terraform validate
+        working-directory: ${{ matrix.root }}

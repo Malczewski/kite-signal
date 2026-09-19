@@ -1,0 +1,20 @@
+{
+  "spotId": "alvor-portugal",
+  "name": "Alvor Lagoon",
+  "country": "PT",
+  "lat": 37.1236,
+  "lon": -8.6167,
+  "active": true,
+
+  "idealWindDirRange": [340, 20],
+  "usableWindDirRange": [320, 40],
+  "dangerousWindDirRanges": [],
+
+  "minWindKts": 15,
+  "idealWindKts": [18, 22],
+  "maxWindKts": 25,
+  "gustToleranceKts": 6,
+
+  "seasonalityMonths": [5, 6, 7, 8, 9],
+  "skillLevel": "beginner"
+}

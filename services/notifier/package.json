@@ -1,0 +1,17 @@
+{
+  "name": "@kite-signal/notifier",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ssm": "^3.700.0",
+    "@kite-signal/notification-channels": "*",
+    "@kite-signal/observability": "*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "spotId": "jastarnia-poland",
+  "name": "Jastarnia (Hel)",
+  "country": "PL",
+  "lat": 54.6969,
+  "lon": 18.6714,
+  "active": true,
+
+  "idealWindDirRange": [270, 315],
+  "usableWindDirRange": [247, 315],
+  "dangerousWindDirRanges": [],
+
+  "minWindKts": 10,
+  "idealWindKts": [14, 20],
+  "maxWindKts": 25,
+  "gustToleranceKts": 6,
+
+  "seasonalityMonths": [3, 4, 5, 6, 7, 8, 9, 10],
+  "skillLevel": "beginner"
+}

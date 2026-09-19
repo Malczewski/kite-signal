@@ -1,0 +1,19 @@
+{
+  "spotId": "obidos-portugal",
+  "name": "Lagoa de Óbidos",
+  "country": "PT",
+  "lat": 39.4166,
+  "lon": -9.2333,
+  "active": true,
+
+  "idealWindDirRange": [300, 330],
+  "usableWindDirRange": [280, 350],
+  "dangerousWindDirRanges": [],
+
+  "minWindKts": 12,
+  "idealWindKts": [14, 18],
+  "maxWindKts": 20,
+  "gustToleranceKts": 5,
+
+  "skillLevel": "beginner"
+}
