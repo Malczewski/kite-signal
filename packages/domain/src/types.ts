@@ -26,10 +26,16 @@ export interface ForecastPoint {
   windDirDeg: number;
   windSpeedKts: number;
   gustSpeedKts: number;
+  cloudCoverPct: number;
+  precipitationProbabilityPct: number;
   source: ForecastSource;
 }
 
 export type Rating = 'poor' | 'marginal' | 'good' | 'excellent';
+
+export type Condition = 'sunny' | 'partly-cloudy' | 'cloudy' | 'rain';
+
+export type Quality = 'ideal' | 'usable' | 'poor' | 'hazard';
 
 export interface PointScore {
   timestamp: string;
@@ -46,4 +52,10 @@ export interface WindowResult {
   avgScore: number;
   rating: Rating;
   reasons: string[];
+  windSpeedMinKts: number;
+  windSpeedMaxKts: number;
+  /** Circular mean of the window's wind directions, 0-360. */
+  windDirDeg: number;
+  gustMaxKts: number;
+  condition: Condition;
 }

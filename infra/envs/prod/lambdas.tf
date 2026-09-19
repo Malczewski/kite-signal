@@ -21,7 +21,8 @@ module "forecast_fetcher_lambda" {
   environment_variables = {
     SPOTS_TABLE_NAME           = module.spots_table.table_name
     FORECAST_SCORING_QUEUE_URL = module.forecast_scoring_queue.queue_url
-    FORECAST_DAYS              = "5"
+    # Open-Meteo's hourly forecast API caps out at 16 days
+    FORECAST_DAYS = "16"
   }
 }
 
@@ -113,6 +114,7 @@ module "preference_matcher_lambda" {
   alarm_sns_topic_arn = aws_sns_topic.ops_alerts.arn
 
   environment_variables = {
+    SPOTS_TABLE_NAME              = module.spots_table.table_name
     SUBSCRIPTIONS_TABLE_NAME      = module.subscriptions_table.table_name
     USERS_TABLE_NAME              = module.users_table.table_name
     NOTIFICATION_DEDUP_TABLE_NAME = module.notification_dedup_table.table_name

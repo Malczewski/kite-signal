@@ -12,6 +12,7 @@ function makeDeps(overrides: Partial<CommandDeps> = {}): CommandDeps {
       subscribe: vi.fn().mockResolvedValue(undefined),
       unsubscribe: vi.fn().mockResolvedValue(undefined),
       updateThreshold: vi.fn().mockResolvedValue(true),
+      updateConsecutiveDays: vi.fn().mockResolvedValue(true),
       listForUser: vi.fn().mockResolvedValue([]),
     },
     userRepository: {
@@ -76,11 +77,44 @@ describe('handleCommand', () => {
         subscribe: vi.fn(),
         unsubscribe: vi.fn(),
         updateThreshold: vi.fn().mockResolvedValue(false),
+        updateConsecutiveDays: vi.fn(),
         listForUser: vi.fn().mockResolvedValue([]),
       },
     });
 
     const reply = await handleCommand(deps, 'tg:123', '123', '/setthreshold nin-croatia 80');
+
+    expect(reply.title).toBe('Not subscribed');
+  });
+
+  it('/setconsecutivedays validates N before calling the repository', async () => {
+    const deps = makeDeps();
+    const reply = await handleCommand(deps, 'tg:123', '123', '/setconsecutivedays nin-croatia 0');
+
+    expect(deps.subscriptionRepository.updateConsecutiveDays).not.toHaveBeenCalled();
+    expect(reply.body).toMatch(/usage/i);
+  });
+
+  it('/setconsecutivedays updates the subscription for a valid N', async () => {
+    const deps = makeDeps();
+    const reply = await handleCommand(deps, 'tg:123', '123', '/setconsecutivedays nin-croatia 5');
+
+    expect(deps.subscriptionRepository.updateConsecutiveDays).toHaveBeenCalledWith('tg:123', 'nin-croatia', 5);
+    expect(reply.title).toBe('Updated');
+  });
+
+  it('/setconsecutivedays reports "not subscribed" when the repository update fails', async () => {
+    const deps = makeDeps({
+      subscriptionRepository: {
+        subscribe: vi.fn(),
+        unsubscribe: vi.fn(),
+        updateThreshold: vi.fn(),
+        updateConsecutiveDays: vi.fn().mockResolvedValue(false),
+        listForUser: vi.fn().mockResolvedValue([]),
+      },
+    });
+
+    const reply = await handleCommand(deps, 'tg:123', '123', '/setconsecutivedays nin-croatia 5');
 
     expect(reply.title).toBe('Not subscribed');
   });

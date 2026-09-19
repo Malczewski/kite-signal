@@ -5,6 +5,12 @@
   "lat": 44.2397,
   "lon": 15.1808,
   "active": true,
+  "timezone": "Europe/Zagreb",
+  "externalLinks": [
+    { "label": "Windy", "url": "https://www.windy.com/44.2397/15.1808?wind,44.2397,15.1808" },
+    { "label": "Windguru", "url": "https://www.windguru.cz/495392" },
+    { "label": "Windfinder", "url": "https://www.windfinder.com/forecast/nin_zadarska_croatia" }
+  ],
 
   "idealWindDirRange": [315, 45],
   "usableWindDirRange": [300, 60],

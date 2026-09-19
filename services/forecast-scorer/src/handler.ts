@@ -1,10 +1,10 @@
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import type { PutEventsRequestEntry } from '@aws-sdk/client-eventbridge';
 import { MetricUnit } from '@aws-lambda-powertools/metrics';
-import { findBestWindow, groupByUtcDate } from '@kite-signal/domain';
-import type { ForecastPoint, SpotKnowledge } from '@kite-signal/domain';
+import { filterDaylightPoints, findBestWindow, groupByUtcDate, groupConsecutiveDates } from '@kite-signal/domain';
+import type { ForecastPoint, SpotKnowledge, WindowResult } from '@kite-signal/domain';
 import { GOOD_FORECAST_DETECTED_DETAIL_TYPE, KITE_SIGNAL_EVENT_SOURCE } from '@kite-signal/events';
-import type { GoodForecastDetectedDetail } from '@kite-signal/events';
+import type { DayWindow, GoodForecastDetectedDetail } from '@kite-signal/events';
 import { createLogger, createMetrics, createTracer } from '@kite-signal/observability';
 
 const SERVICE_NAME = 'forecast-scorer';
@@ -41,15 +41,8 @@ const tracer = createTracer(SERVICE_NAME);
 
 const eventBridge = tracer.captureAWSv3Client(new EventBridgeClient({}));
 
-function toEntry(
-  spot: SpotRecordLike,
-  date: string,
-  window: NonNullable<ReturnType<typeof findBestWindow>>,
-): PutEventsRequestEntry {
-  const detail: GoodForecastDetectedDetail = {
-    spotId: spot.spotId,
-    spotName: spot.name,
-    country: spot.country,
+function toDayWindow(date: string, window: WindowResult): DayWindow {
+  return {
     date,
     windowStart: window.windowStart,
     windowEnd: window.windowEnd,
@@ -57,6 +50,26 @@ function toEntry(
     avgScore: window.avgScore,
     rating: window.rating,
     reasons: window.reasons,
+    windSpeedMinKts: window.windSpeedMinKts,
+    windSpeedMaxKts: window.windSpeedMaxKts,
+    windDirDeg: window.windDirDeg,
+    gustMaxKts: window.gustMaxKts,
+    condition: window.condition,
+  };
+}
+
+/** `minConsecutiveDays` is a per-subscriber setting this service doesn't know about, so every
+ * run of consecutive good days (even a single day) is published as its own event and
+ * preference-matcher decides which runs are long enough for a given subscriber. */
+function toEntry(spot: SpotRecordLike, streak: DayWindow[]): PutEventsRequestEntry {
+  const detail: GoodForecastDetectedDetail = {
+    spotId: spot.spotId,
+    spotName: spot.name,
+    country: spot.country,
+    streakStartDate: streak[0]!.date,
+    streakEndDate: streak.at(-1)!.date,
+    streakLengthDays: streak.length,
+    days: streak,
   };
 
   return {
@@ -74,12 +87,18 @@ export const handler = async (event: SqsEvent): Promise<void> => {
 
     for (const record of event.Records) {
       const { spot, points } = JSON.parse(record.body) as ScoringMessage;
-      const byDate = groupByUtcDate(points);
+      const daylightPoints = filterDaylightPoints(spot.lat, spot.lon, points);
+      const byDate = groupByUtcDate(daylightPoints);
 
+      const qualifyingDays: DayWindow[] = [];
       for (const [date, dayPoints] of byDate) {
         daysScored += 1;
         const window = findBestWindow(spot, dayPoints, { minScoreThreshold, minDurationHours });
-        if (window) entries.push(toEntry(spot, date, window));
+        if (window) qualifyingDays.push(toDayWindow(date, window));
+      }
+
+      for (const streak of groupConsecutiveDates(qualifyingDays)) {
+        entries.push(toEntry(spot, streak));
       }
     }
 

@@ -24,6 +24,8 @@ describe('OpenMeteoProvider', () => {
         wind_speed_10m: [18, 22],
         wind_direction_10m: [225, 230],
         wind_gusts_10m: [21, 27],
+        cloudcover: [10, 40],
+        precipitation_probability: [0, 5],
       },
     };
     const fetchImpl = vi.fn().mockResolvedValue({
@@ -49,6 +51,8 @@ describe('OpenMeteoProvider', () => {
         windDirDeg: 225,
         windSpeedKts: 18,
         gustSpeedKts: 21,
+        cloudCoverPct: 10,
+        precipitationProbabilityPct: 0,
         source: 'open-meteo',
       },
       {
@@ -56,6 +60,8 @@ describe('OpenMeteoProvider', () => {
         windDirDeg: 230,
         windSpeedKts: 22,
         gustSpeedKts: 27,
+        cloudCoverPct: 40,
+        precipitationProbabilityPct: 5,
         source: 'open-meteo',
       },
     ]);

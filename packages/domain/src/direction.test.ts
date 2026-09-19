@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { angularDistanceOutsideRange, isDirectionInRange, normalizeDegrees } from './direction.js';
+import { angularDistanceOutsideRange, circularMeanDeg, isDirectionInRange, normalizeDegrees } from './direction.js';
 
 describe('normalizeDegrees', () => {
   it('leaves in-range degrees unchanged', () => {
@@ -57,5 +57,21 @@ describe('angularDistanceOutsideRange', () => {
     const range: [number, number] = [300, 30];
     expect(angularDistanceOutsideRange(45, range)).toBe(15);
     expect(angularDistanceOutsideRange(250, range)).toBe(50);
+  });
+});
+
+describe('circularMeanDeg', () => {
+  it('averages a simple non-wrapping set of bearings', () => {
+    expect(circularMeanDeg([0, 10])).toBeCloseTo(5, 5);
+  });
+
+  it('averages across the 0/360 seam without landing on the opposite direction', () => {
+    const result = circularMeanDeg([350, 10]);
+    // Should land near 0/360, not near the arithmetic mean (180, the opposite direction).
+    expect(Math.min(result, 360 - result)).toBeCloseTo(0, 5);
+  });
+
+  it('returns the single value unchanged', () => {
+    expect(circularMeanDeg([225])).toBeCloseTo(225, 5);
   });
 });

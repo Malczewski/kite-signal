@@ -5,17 +5,18 @@ export interface CommandDeps {
   spotRepository: Pick<SpotRepository, 'getById' | 'listActive'>;
   subscriptionRepository: Pick<
     SubscriptionRepository,
-    'subscribe' | 'unsubscribe' | 'updateThreshold' | 'listForUser'
+    'subscribe' | 'unsubscribe' | 'updateThreshold' | 'updateConsecutiveDays' | 'listForUser'
   >;
   userRepository: Pick<UserRepository, 'upsertProfile' | 'linkChannel'>;
 }
 
 const DEFAULT_MIN_SCORE_THRESHOLD = 65;
 const DEFAULT_MIN_DURATION_HOURS = 3;
+const DEFAULT_MIN_CONSECUTIVE_DAYS = 3;
 
 const HELP_TEXT =
   'Commands: /spots [search], /subscribe <spot-id>, /unsubscribe <spot-id>, ' +
-  '/setthreshold <spot-id> <0-100>, /mysubs';
+  '/setthreshold <spot-id> <0-100>, /setconsecutivedays <spot-id> <N>, /mysubs';
 
 /** `userId` is channel-neutral (e.g. `tg:<chatId>`); `target` is the Telegram chat ID. */
 export async function handleCommand(
@@ -61,6 +62,7 @@ export async function handleCommand(
         spotId,
         minScoreThreshold: DEFAULT_MIN_SCORE_THRESHOLD,
         minDurationHours: DEFAULT_MIN_DURATION_HOURS,
+        minConsecutiveDays: DEFAULT_MIN_CONSECUTIVE_DAYS,
         createdAt: new Date().toISOString(),
       });
       return { title: 'Subscribed', body: `You're now subscribed to ${spot.name}.` };
@@ -85,6 +87,18 @@ export async function handleCommand(
         : { title: 'Not subscribed', body: `You're not subscribed to ${spotId} yet - use /subscribe first.` };
     }
 
+    case '/setconsecutivedays': {
+      const [spotId, daysStr] = args;
+      const days = Number(daysStr);
+      if (!spotId || !Number.isInteger(days) || days < 1) {
+        return { title: 'Set consecutive days', body: 'Usage: /setconsecutivedays <spot-id> <N>' };
+      }
+      const updated = await deps.subscriptionRepository.updateConsecutiveDays(userId, spotId, days);
+      return updated
+        ? { title: 'Updated', body: `Minimum consecutive good days for ${spotId} set to ${days}.` }
+        : { title: 'Not subscribed', body: `You're not subscribed to ${spotId} yet - use /subscribe first.` };
+    }
+
     case '/mysubs': {
       const subs = await deps.subscriptionRepository.listForUser(userId);
       if (subs.length === 0) {
@@ -93,7 +107,11 @@ export async function handleCommand(
       return {
         title: 'Your subscriptions',
         body: subs
-          .map((s) => `${s.spotId} (min score ${s.minScoreThreshold}, min ${s.minDurationHours}h)`)
+          .map(
+            (s) =>
+              `${s.spotId} (min score ${s.minScoreThreshold}, min ${s.minDurationHours}h, ` +
+              `${s.minConsecutiveDays ?? DEFAULT_MIN_CONSECUTIVE_DAYS} consecutive days)`,
+          )
           .join('\n'),
       };
     }

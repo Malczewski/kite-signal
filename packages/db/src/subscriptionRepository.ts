@@ -70,6 +70,25 @@ export class SubscriptionRepository {
     }
   }
 
+  /** Returns false (without throwing) if the user isn't subscribed to this spot yet. */
+  async updateConsecutiveDays(userId: string, spotId: string, minConsecutiveDays: number): Promise<boolean> {
+    try {
+      await this.doc.send(
+        new UpdateCommand({
+          TableName: this.tableName,
+          Key: { PK: pk(userId), SK: sk(spotId) },
+          UpdateExpression: 'SET minConsecutiveDays = :v',
+          ExpressionAttributeValues: { ':v': minConsecutiveDays },
+          ConditionExpression: 'attribute_exists(PK)',
+        }),
+      );
+      return true;
+    } catch (error) {
+      if (error instanceof ConditionalCheckFailedException) return false;
+      throw error;
+    }
+  }
+
   /** The matcher's core access pattern: who's subscribed to this spot. */
   async listSubscribersForSpot(spotId: string): Promise<Subscription[]> {
     const result = await this.doc.send(

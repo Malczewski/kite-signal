@@ -5,6 +5,12 @@
   "lat": 54.6969,
   "lon": 18.6714,
   "active": true,
+  "timezone": "Europe/Warsaw",
+  "externalLinks": [
+    { "label": "Windy", "url": "https://www.windy.com/54.6969/18.6714?wind,54.6969,18.6714" },
+    { "label": "Windguru", "url": "https://www.windguru.cz/128704" },
+    { "label": "Windfinder", "url": "https://www.windfinder.com/forecast/jastarnia" }
+  ],
 
   "idealWindDirRange": [270, 315],
   "usableWindDirRange": [247, 315],

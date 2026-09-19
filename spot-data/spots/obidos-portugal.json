@@ -5,6 +5,12 @@
   "lat": 39.4166,
   "lon": -9.2333,
   "active": true,
+  "timezone": "Europe/Lisbon",
+  "externalLinks": [
+    { "label": "Windy", "url": "https://www.windy.com/39.4166/-9.2333?wind,39.4166,-9.2333" },
+    { "label": "Windguru", "url": "https://www.windguru.cz/829734" },
+    { "label": "Windfinder", "url": "https://www.windfinder.com/forecast/obidos_leiria_portugal" }
+  ],
 
   "idealWindDirRange": [300, 330],
   "usableWindDirRange": [280, 350],
