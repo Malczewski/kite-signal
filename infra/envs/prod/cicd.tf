@@ -27,7 +27,7 @@ resource "aws_iam_role" "github_actions_deploy" {
         }
         StringLike = {
           # Restricts to workflow runs triggered on main - PRs (any other ref) can't assume this.
-          "token.actions.githubusercontent.com:sub" = "repo:Malczewski/kite-signal:ref:refs/heads/main"
+          "token.actions.githubusercontent.com:sub" = "repo:Malczewski/kite-signal:ref:refs/heads/master"
         }
       }
     }]
