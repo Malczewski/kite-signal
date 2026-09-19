@@ -22,12 +22,14 @@ resource "aws_iam_role" "github_actions_deploy" {
       Principal = { Federated = aws_iam_openid_connect_provider.github_actions.arn }
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
+        # AWS requires this trust policy be scoped on `sub` or `job_workflow_ref`
+        # specifically (plain `repository`/`ref` conditions are rejected outright).
+        # `job_workflow_ref` also avoids the numeric owner/repo IDs GitHub's immutable-ID
+        # claims feature embeds into `sub` here (e.g. "repo:Malczewski@123/kite-signal@456:...")
+        # and is more precise anyway - it pins to this exact workflow file, not just the branch.
         StringEquals = {
-          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-        }
-        StringLike = {
-          # Restricts to workflow runs triggered on main - PRs (any other ref) can't assume this.
-          "token.actions.githubusercontent.com:sub" = "repo:Malczewski/kite-signal:ref:refs/heads/master"
+          "token.actions.githubusercontent.com:aud"              = "sts.amazonaws.com"
+          "token.actions.githubusercontent.com:job_workflow_ref" = "Malczewski/kite-signal/.github/workflows/deploy.yml@refs/heads/master"
         }
       }
     }]
