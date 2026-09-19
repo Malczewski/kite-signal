@@ -65,7 +65,7 @@ resource "aws_lambda_function" "this" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "errors" {
-  count = var.alarm_sns_topic_arn != null ? 1 : 0
+  count = var.enable_alarm ? 1 : 0
 
   alarm_name          = "${var.function_name}-errors"
   namespace           = "AWS/Lambda"

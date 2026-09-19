@@ -4,6 +4,7 @@ module "forecast_scoring_queue" {
 
   queue_name                 = "kite-signal-forecast-scoring"
   visibility_timeout_seconds = 90
+  enable_alarm               = true
   alarm_sns_topic_arn        = aws_sns_topic.ops_alerts.arn
 }
 
@@ -30,6 +31,7 @@ module "preference_matching_queue" {
 
   queue_name                 = "kite-signal-preference-matching"
   visibility_timeout_seconds = 60
+  enable_alarm               = true
   alarm_sns_topic_arn        = aws_sns_topic.ops_alerts.arn
 }
 
@@ -64,5 +66,6 @@ module "notification_queue" {
 
   queue_name                 = "kite-signal-notification"
   visibility_timeout_seconds = 30
+  enable_alarm               = true
   alarm_sns_topic_arn        = aws_sns_topic.ops_alerts.arn
 }

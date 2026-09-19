@@ -62,6 +62,12 @@ variable "extra_policy_arns" {
   default     = []
 }
 
+variable "enable_alarm" {
+  description = "Whether to create the Errors alarm (requires alarm_sns_topic_arn)"
+  type        = bool
+  default     = false
+}
+
 variable "alarm_sns_topic_arn" {
   description = "If set, alarms when this function's Errors metric is > 0 in a 5-minute period"
   type        = string

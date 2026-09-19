@@ -18,7 +18,7 @@ resource "aws_sqs_queue" "this" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "dlq_not_empty" {
-  count = var.alarm_sns_topic_arn != null ? 1 : 0
+  count = var.enable_alarm ? 1 : 0
 
   alarm_name          = "${var.queue_name}-dlq-not-empty"
   namespace           = "AWS/SQS"
@@ -35,7 +35,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_not_empty" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "oldest_message_age" {
-  count = var.alarm_sns_topic_arn != null ? 1 : 0
+  count = var.enable_alarm ? 1 : 0
 
   alarm_name          = "${var.queue_name}-oldest-message-age"
   namespace           = "AWS/SQS"

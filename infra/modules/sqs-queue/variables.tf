@@ -19,6 +19,12 @@ variable "max_receive_count" {
   default     = 5
 }
 
+variable "enable_alarm" {
+  description = "Whether to create the DLQ/oldest-message-age alarms (requires alarm_sns_topic_arn)"
+  type        = bool
+  default     = false
+}
+
 variable "alarm_sns_topic_arn" {
   description = "If set, alarms when the DLQ is non-empty or the queue's oldest message age exceeds max_message_age_alarm_seconds"
   type        = string

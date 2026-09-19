@@ -1,12 +1,16 @@
 # Milestone 14: lets deploy.yml assume an AWS role via OIDC federation - no long-lived
 # AWS access keys stored as GitHub secrets, nothing to rotate or leak.
 
-# GitHub's OIDC thumbprint has been stable for years; if GitHub ever rotates their TLS CA,
-# this value needs updating (see https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect).
+# Thumbprint is derived from GitHub's live TLS cert rather than hardcoded, so it can't go
+# stale (or be mistyped) if GitHub ever rotates their CA.
+data "tls_certificate" "github_actions" {
+  url = "https://token.actions.githubusercontent.com"
+}
+
 resource "aws_iam_openid_connect_provider" "github_actions" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea"]
+  thumbprint_list = [data.tls_certificate.github_actions.certificates[0].sha1_fingerprint]
 }
 
 resource "aws_iam_role" "github_actions_deploy" {

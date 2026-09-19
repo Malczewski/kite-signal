@@ -9,6 +9,30 @@ resource "aws_apigatewayv2_stage" "default" {
   name        = "$default"
   auto_deploy = true
   tags        = var.tags
+
+  # Cheap first line of defense against abusive/scripted traffic hitting a public endpoint -
+  # caps cost/blast-radius even though real auth happens inside the Lambda (secret token check).
+  default_route_settings {
+    throttling_rate_limit  = var.throttling_rate_limit
+    throttling_burst_limit = var.throttling_burst_limit
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "high_4xx_rate" {
+  count = var.enable_alarm ? 1 : 0
+
+  alarm_name          = "${var.api_name}-high-4xx-rate"
+  alarm_description   = "Elevated 4xx rate - possibly scripted/abusive traffic or a broken client"
+  namespace           = "AWS/ApiGateway"
+  metric_name         = "4xx"
+  dimensions          = { ApiId = aws_apigatewayv2_api.this.id }
+  statistic           = "Sum"
+  period              = 300
+  evaluation_periods  = 1
+  threshold           = 50
+  comparison_operator = "GreaterThanThreshold"
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = [var.alarm_sns_topic_arn]
 }
 
 resource "aws_apigatewayv2_integration" "lambda" {

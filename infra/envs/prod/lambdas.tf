@@ -15,6 +15,7 @@ module "forecast_fetcher_lambda" {
 
   enable_xray         = true
   extra_policy_arns   = [local.xray_policy_arn]
+  enable_alarm        = true
   alarm_sns_topic_arn = aws_sns_topic.ops_alerts.arn
 
   environment_variables = {
@@ -44,6 +45,7 @@ module "forecast_scorer_lambda" {
 
   enable_xray         = true
   extra_policy_arns   = [local.sqs_policy_arn, local.xray_policy_arn]
+  enable_alarm        = true
   alarm_sns_topic_arn = aws_sns_topic.ops_alerts.arn
 
   environment_variables = {
@@ -71,6 +73,7 @@ module "telegram_webhook_lambda" {
 
   enable_xray         = true
   extra_policy_arns   = [local.xray_policy_arn]
+  enable_alarm        = true
   alarm_sns_topic_arn = aws_sns_topic.ops_alerts.arn
 
   environment_variables = {
@@ -89,6 +92,8 @@ module "telegram_webhook_api" {
   route_key            = "POST /telegram/webhook"
   lambda_invoke_arn    = module.telegram_webhook_lambda.invoke_arn
   lambda_function_name = module.telegram_webhook_lambda.function_name
+  enable_alarm         = true
+  alarm_sns_topic_arn  = aws_sns_topic.ops_alerts.arn
 }
 
 # Milestone 9/11: matches GoodForecastDetected events against subscriber preferences,
@@ -104,6 +109,7 @@ module "preference_matcher_lambda" {
 
   enable_xray         = true
   extra_policy_arns   = [local.sqs_policy_arn, local.xray_policy_arn]
+  enable_alarm        = true
   alarm_sns_topic_arn = aws_sns_topic.ops_alerts.arn
 
   environment_variables = {
@@ -132,6 +138,7 @@ module "notifier_lambda" {
 
   enable_xray         = true
   extra_policy_arns   = [local.sqs_policy_arn, local.xray_policy_arn]
+  enable_alarm        = true
   alarm_sns_topic_arn = aws_sns_topic.ops_alerts.arn
 
   environment_variables = {
