@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findBestWindow, scorePoint } from './scoring.js';
+import { classifyCondition, classifyDirectionQuality, classifySpeedQuality, findBestWindow, scorePoint } from './scoring.js';
 import type { ForecastPoint, SpotKnowledge } from './types.js';
 
 const spot: SpotKnowledge = {
@@ -21,6 +21,8 @@ function point(overrides: Partial<ForecastPoint>): ForecastPoint {
     windDirDeg: 225,
     windSpeedKts: 20,
     gustSpeedKts: 22,
+    cloudCoverPct: 20,
+    precipitationProbabilityPct: 5,
     source: 'open-meteo',
     ...overrides,
   };
@@ -70,6 +72,33 @@ describe('scorePoint', () => {
   });
 });
 
+describe('classifyDirectionQuality', () => {
+  it('grades hazard, ideal, usable and poor directions', () => {
+    expect(classifyDirectionQuality(spot, 45)).toBe('hazard');
+    expect(classifyDirectionQuality(spot, 225)).toBe('ideal');
+    expect(classifyDirectionQuality(spot, 190)).toBe('usable');
+    expect(classifyDirectionQuality(spot, 280)).toBe('poor');
+  });
+});
+
+describe('classifySpeedQuality', () => {
+  it('grades poor, usable and ideal speeds', () => {
+    expect(classifySpeedQuality(spot, 5)).toBe('poor');
+    expect(classifySpeedQuality(spot, 40)).toBe('poor');
+    expect(classifySpeedQuality(spot, 15)).toBe('usable');
+    expect(classifySpeedQuality(spot, 20)).toBe('ideal');
+  });
+});
+
+describe('classifyCondition', () => {
+  it('classifies rain, sunny, partly-cloudy and cloudy', () => {
+    expect(classifyCondition(80, 60)).toBe('rain');
+    expect(classifyCondition(10, 0)).toBe('sunny');
+    expect(classifyCondition(50, 0)).toBe('partly-cloudy');
+    expect(classifyCondition(90, 0)).toBe('cloudy');
+  });
+});
+
 describe('findBestWindow', () => {
   function hourlyPoints(scores: Array<'ideal' | 'poor'>): ForecastPoint[] {
     return scores.map((kind, i) =>
@@ -112,5 +141,18 @@ describe('findBestWindow', () => {
     const result = findBestWindow(spot, points, { minScoreThreshold: 65, minDurationHours: 1 });
     expect(result?.avgScore).toBe(100);
     expect(result?.windowStart).toBe('2024-06-01T02:00:00Z');
+  });
+
+  it('computes wind range, direction, gust and condition stats over the winning window', () => {
+    const points = [
+      point({ timestamp: '2024-06-01T00:00:00Z', windDirDeg: 220, windSpeedKts: 18, gustSpeedKts: 20, cloudCoverPct: 10, precipitationProbabilityPct: 0 }),
+      point({ timestamp: '2024-06-01T01:00:00Z', windDirDeg: 230, windSpeedKts: 22, gustSpeedKts: 26, cloudCoverPct: 30, precipitationProbabilityPct: 0 }),
+    ];
+    const result = findBestWindow(spot, points, { minScoreThreshold: 65, minDurationHours: 1 });
+    expect(result?.windSpeedMinKts).toBe(18);
+    expect(result?.windSpeedMaxKts).toBe(22);
+    expect(result?.windDirDeg).toBeCloseTo(225, 0);
+    expect(result?.gustMaxKts).toBe(26);
+    expect(result?.condition).toBe('sunny');
   });
 });

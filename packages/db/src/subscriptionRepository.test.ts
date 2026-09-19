@@ -9,6 +9,7 @@ const sub: Subscription = {
   spotId: 'nin-croatia',
   minScoreThreshold: 65,
   minDurationHours: 3,
+  minConsecutiveDays: 3,
   createdAt: '2024-06-01T00:00:00Z',
 };
 
@@ -88,6 +89,38 @@ describe('SubscriptionRepository', () => {
       'tg:123',
       'nin-croatia',
       80,
+    );
+
+    expect(result).toBe(false);
+  });
+
+  it('updateConsecutiveDays() returns true on success', async () => {
+    let captured: Record<string, unknown> | undefined;
+    const doc = fakeDoc((command) => {
+      captured = (command as { input: Record<string, unknown> }).input;
+      return {};
+    });
+
+    const result = await new SubscriptionRepository(doc, 'Subscriptions').updateConsecutiveDays(
+      'tg:123',
+      'nin-croatia',
+      5,
+    );
+
+    expect(result).toBe(true);
+    expect(captured?.ConditionExpression).toBe('attribute_exists(PK)');
+    expect(captured?.ExpressionAttributeValues).toEqual({ ':v': 5 });
+  });
+
+  it('updateConsecutiveDays() returns false when the subscription does not exist', async () => {
+    const doc = fakeDoc(() => {
+      throw new ConditionalCheckFailedException({ message: 'conditional check failed', $metadata: {} });
+    });
+
+    const result = await new SubscriptionRepository(doc, 'Subscriptions').updateConsecutiveDays(
+      'tg:123',
+      'nin-croatia',
+      5,
     );
 
     expect(result).toBe(false);

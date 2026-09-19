@@ -9,6 +9,8 @@ interface OpenMeteoHourlyResponse {
     wind_speed_10m: number[];
     wind_direction_10m: number[];
     wind_gusts_10m: number[];
+    cloudcover: number[];
+    precipitation_probability: number[];
   };
 }
 
@@ -29,7 +31,10 @@ export class OpenMeteoProvider implements ForecastProvider {
     const url = new URL(BASE_URL);
     url.searchParams.set('latitude', String(lat));
     url.searchParams.set('longitude', String(lon));
-    url.searchParams.set('hourly', 'wind_speed_10m,wind_direction_10m,wind_gusts_10m');
+    url.searchParams.set(
+      'hourly',
+      'wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloudcover,precipitation_probability',
+    );
     url.searchParams.set('wind_speed_unit', 'kn');
     url.searchParams.set('forecast_days', String(days));
     url.searchParams.set('timezone', 'UTC');
@@ -45,6 +50,8 @@ export class OpenMeteoProvider implements ForecastProvider {
       windDirDeg: body.hourly.wind_direction_10m[i]!,
       windSpeedKts: body.hourly.wind_speed_10m[i]!,
       gustSpeedKts: body.hourly.wind_gusts_10m[i]!,
+      cloudCoverPct: body.hourly.cloudcover[i]!,
+      precipitationProbabilityPct: body.hourly.precipitation_probability[i]!,
       source: this.source,
     }));
   }

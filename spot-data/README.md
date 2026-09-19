@@ -20,6 +20,13 @@ Each `spots/<spot-id>.json` file is a `SpotRecord` (see
   "lat": 44.2397,
   "lon": 15.1808,
   "active": true,
+  "timezone": "Europe/Zagreb",    // IANA name; used to render forecast times in local time
+
+  // Optional curated links shown alongside notifications (Windy, Windguru, Windfinder, webcams,
+  // etc.) - populate with whatever's useful for the spot, omit the field if there's none yet.
+  "externalLinks": [
+    { "label": "Windy", "url": "https://www.windy.com/44.2397/15.1808?wind" }
+  ],
 
   // Wind direction ranges in degrees (0-360). May wrap across 0/360, e.g. [300, 30].
   "idealWindDirRange": [200, 250],

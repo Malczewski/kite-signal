@@ -3,7 +3,15 @@ import { groupByUtcDate } from './grouping.js';
 import type { ForecastPoint } from './types.js';
 
 function point(timestamp: string): ForecastPoint {
-  return { timestamp, windDirDeg: 225, windSpeedKts: 20, gustSpeedKts: 22, source: 'open-meteo' };
+  return {
+    timestamp,
+    windDirDeg: 225,
+    windSpeedKts: 20,
+    gustSpeedKts: 22,
+    cloudCoverPct: 20,
+    precipitationProbabilityPct: 5,
+    source: 'open-meteo',
+  };
 }
 
 describe('groupByUtcDate', () => {

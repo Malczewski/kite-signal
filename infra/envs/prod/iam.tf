@@ -82,6 +82,11 @@ resource "aws_iam_role_policy" "preference_matcher" {
     Version = "2012-10-17"
     Statement = [
       {
+        Effect   = "Allow"
+        Action   = ["dynamodb:GetItem"]
+        Resource = module.spots_table.table_arn
+      },
+      {
         Effect = "Allow"
         Action = ["dynamodb:Query"]
         Resource = [

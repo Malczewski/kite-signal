@@ -29,3 +29,15 @@ export function angularDistanceOutsideRange(deg: number, range: WindDirectionRan
   const end = normalizeDegrees(range[1]);
   return Math.min(shortestAngleBetween(d, start), shortestAngleBetween(d, end));
 }
+
+/**
+ * Mean of a set of compass bearings. A plain arithmetic mean breaks near the 0/360 seam (e.g.
+ * averaging 350 and 10 would give 180, the opposite direction); this averages the unit vectors
+ * instead.
+ */
+export function circularMeanDeg(degrees: number[]): number {
+  const radians = degrees.map((deg) => (deg * Math.PI) / 180);
+  const sinSum = radians.reduce((sum, r) => sum + Math.sin(r), 0);
+  const cosSum = radians.reduce((sum, r) => sum + Math.cos(r), 0);
+  return normalizeDegrees((Math.atan2(sinSum, cosSum) * 180) / Math.PI);
+}

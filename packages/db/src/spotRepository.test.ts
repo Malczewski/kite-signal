@@ -10,6 +10,7 @@ const spot: SpotRecord = {
   lat: 44.2397,
   lon: 15.1808,
   active: true,
+  timezone: 'Europe/Zagreb',
   idealWindDirRange: [200, 250],
   usableWindDirRange: [180, 270],
   dangerousWindDirRanges: [[0, 90]],

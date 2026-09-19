@@ -5,6 +5,12 @@
   "lat": 37.1236,
   "lon": -8.6167,
   "active": true,
+  "timezone": "Europe/Lisbon",
+  "externalLinks": [
+    { "label": "Windy", "url": "https://www.windy.com/37.1236/-8.6167?wind,37.1236,-8.6167" },
+    { "label": "Windguru", "url": "https://www.windguru.cz/48968" },
+    { "label": "Windfinder", "url": "https://www.windfinder.com/forecast/alvor" }
+  ],
 
   "idealWindDirRange": [340, 20],
   "usableWindDirRange": [320, 40],
@@ -15,6 +21,5 @@
   "maxWindKts": 25,
   "gustToleranceKts": 6,
 
-  "seasonalityMonths": [5, 6, 7, 8, 9],
   "skillLevel": "beginner"
 }

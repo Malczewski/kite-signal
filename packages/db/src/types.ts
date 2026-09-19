@@ -1,12 +1,21 @@
 import type { SpotKnowledge } from '@kite-signal/domain';
 import type { NotificationChannelType } from '@kite-signal/notification-channels';
 
+export interface SpotExternalLink {
+  label: string;
+  url: string;
+}
+
 /** Everything about a spot: the scoring-relevant fields (SpotKnowledge) plus lookup metadata. */
 export interface SpotRecord extends SpotKnowledge {
   country: string;
   lat: number;
   lon: number;
   active: boolean;
+  /** IANA name, e.g. "Europe/Zagreb" — used to render forecast times in the spot's local time. */
+  timezone: string;
+  /** Curated forecast/webcam links shown alongside notifications, e.g. Windy, Windguru. */
+  externalLinks?: SpotExternalLink[];
 }
 
 export interface UserProfile {
@@ -29,6 +38,8 @@ export interface Subscription {
   spotId: string;
   minScoreThreshold: number;
   minDurationHours: number;
+  /** How many consecutive good days are required before notifying. */
+  minConsecutiveDays: number;
   createdAt: string;
 }
 
