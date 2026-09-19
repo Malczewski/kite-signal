@@ -3,7 +3,7 @@ locals {
   sqs_policy_arn  = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
 }
 
-# Milestone 7: fetches forecasts for active spots, enqueues one message per spot.
+# Fetches forecasts for active spots, enqueues one message per spot.
 module "forecast_fetcher_lambda" {
   source = "../../modules/lambda-function"
 
@@ -34,7 +34,7 @@ module "forecast_fetcher_schedule" {
   target_lambda_arn   = module.forecast_fetcher_lambda.function_arn
 }
 
-# Milestone 7-8: scores each spot's forecast, publishes GoodForecastDetected events.
+# Scores each spot's forecast, publishes GoodForecastDetected events.
 module "forecast_scorer_lambda" {
   source = "../../modules/lambda-function"
 
@@ -62,7 +62,7 @@ resource "aws_lambda_event_source_mapping" "forecast_scorer_from_scoring_queue" 
   batch_size       = 5
 }
 
-# Milestone 10: Telegram bot webhook (subscribe/unsubscribe/etc via chat commands).
+# Telegram bot webhook (subscribe/unsubscribe/etc via chat commands).
 module "telegram_webhook_lambda" {
   source = "../../modules/lambda-function"
 
@@ -97,7 +97,7 @@ module "telegram_webhook_api" {
   alarm_sns_topic_arn  = aws_sns_topic.ops_alerts.arn
 }
 
-# Milestone 9/11: matches GoodForecastDetected events against subscriber preferences,
+# Matches GoodForecastDetected events against subscriber preferences,
 # dedups, and fans out one notify job per linked channel.
 module "preference_matcher_lambda" {
   source = "../../modules/lambda-function"
@@ -128,7 +128,7 @@ resource "aws_lambda_event_source_mapping" "preference_matcher_from_matching_que
   batch_size       = 5
 }
 
-# Milestone 11: dispatches a notify job to the right channel (Telegram today).
+# Dispatches a notify job to the right channel (Telegram today).
 module "notifier_lambda" {
   source = "../../modules/lambda-function"
 

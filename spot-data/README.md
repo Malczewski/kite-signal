@@ -4,8 +4,12 @@ The curated kitesurf spot knowledge base, as source-controlled JSON — one file
 `spots/`, reviewed like any other code change via PR. `seed.ts` upserts everything here into
 the `Spots` DynamoDB table.
 
-This is deliberately not an admin UI (see "Deferred items" in `docs/architecture-plan.md`):
-adding/editing a spot is a JSON edit + PR, not a form submission.
+This is deliberately not an admin UI: adding/editing a spot is a JSON edit + PR, not a form
+submission, so nothing blocks on building admin tooling first. Because `SpotRepository`
+(`packages/db`) already isolates all `Spots` table access, a future admin web app is a small
+additive step whenever it's worth building — a couple of CRUD API Gateway + Lambda routes
+reusing `SpotRepository`, behind simple auth (e.g. Cognito or an IP allowlist, since it's
+admin-only), with any lightweight frontend calling them.
 
 ## Schema
 

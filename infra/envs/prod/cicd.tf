@@ -1,4 +1,4 @@
-# Milestone 14: lets deploy.yml assume an AWS role via OIDC federation - no long-lived
+# Lets deploy.yml assume an AWS role via OIDC federation - no long-lived
 # AWS access keys stored as GitHub secrets, nothing to rotate or leak.
 
 # Thumbprint is derived from GitHub's live TLS cert rather than hardcoded, so it can't go

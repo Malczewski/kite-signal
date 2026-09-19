@@ -1,4 +1,4 @@
-# Milestone 7: fetcher -> scorer work queue (one message per spot's forecast).
+# Fetcher -> scorer work queue (one message per spot's forecast).
 module "forecast_scoring_queue" {
   source = "../../modules/sqs-queue"
 
@@ -8,10 +8,10 @@ module "forecast_scoring_queue" {
   alarm_sns_topic_arn        = aws_sns_topic.ops_alerts.arn
 }
 
-# Milestone 8: custom bus, single junction where future consumers (e.g. a Stage 3
-# trip-planner) can subscribe to the same GoodForecastDetected events at zero cost
-# until they're added. See docs/architecture-plan.md for why this is the only place
-# EventBridge is used, versus plain SQS everywhere else.
+# Custom bus, single junction where future consumers (e.g. a trip-planner) can
+# subscribe to the same GoodForecastDetected events at zero cost until they're added.
+# This is the only place EventBridge is used, versus plain SQS everywhere else, since
+# it's the one hop with more than one decoupled consumer.
 resource "aws_cloudwatch_event_bus" "kite_signal_events" {
   name = "kite-signal-events"
 }
@@ -25,7 +25,7 @@ resource "aws_cloudwatch_event_rule" "good_forecast_detected" {
   })
 }
 
-# Milestone 9: bus -> preference-matching work queue.
+# Bus -> preference-matching work queue.
 module "preference_matching_queue" {
   source = "../../modules/sqs-queue"
 
@@ -60,7 +60,7 @@ resource "aws_sqs_queue_policy" "preference_matching_allow_eventbridge" {
   })
 }
 
-# Milestone 11: matcher -> notifier work queue.
+# Matcher -> notifier work queue.
 module "notification_queue" {
   source = "../../modules/sqs-queue"
 

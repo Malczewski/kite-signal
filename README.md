@@ -9,10 +9,8 @@ OIDC — kept cheap (pay-per-use, near-zero idle cost) since it's a solo/persona
 
 ## Status
 
-Stage 1 (forecast monitoring + spot scoring) and Stage 2 (Telegram subscriptions +
-notifications) are fully built. See [`docs/architecture-plan.md`](docs/architecture-plan.md)
-for the full design, decisions, and roadmap (Stage 3: trip budget estimation, Stage 4: mobile
-app — not started).
+Forecast monitoring, spot scoring, and Telegram subscriptions/notifications are fully built
+and deployed. Trip-budget estimation and a mobile app are ideas for later, not started.
 
 ## Architecture
 
@@ -45,6 +43,12 @@ source-controlled JSON in [`spot-data/`](spot-data) — see
 [`spot-data/README.md`](spot-data/README.md) for the schema and why it's deliberately not an
 admin UI.
 
+Both the forecast source and notification channel are provider-agnostic by design:
+`packages/forecast-clients` defines a `ForecastProvider` interface (Open-Meteo is the only
+implementation today; a second provider is a new adapter class, not a redesign), and
+`packages/notification-channels` defines a `NotificationChannel` interface (Telegram today;
+email/push are addable the same way against a user's stored channel preference).
+
 ## Repo layout
 
 - `packages/` — shared TypeScript: `domain` (pure scoring logic), `db` (DynamoDB
@@ -54,7 +58,8 @@ admin UI.
 - `services/` — one Lambda per deployable unit (see the pipeline above, plus `hello`, a
   minimal example proving the Terraform/IAM/logging pattern)
 - `infra/` — Terraform: `bootstrap` (one-time state backend), `modules` (reusable building
-  blocks), `envs/prod` (the actual deployed stack)
+  blocks), `envs/prod` (the actual deployed stack — see
+  [`infra/envs/prod/README.md`](infra/envs/prod/README.md) for cost estimates)
 - `spot-data/` — curated spot knowledge base + seed script
 
 ## Getting started

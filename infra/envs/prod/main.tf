@@ -1,4 +1,4 @@
-# Milestone 2: hello-world Lambda, proving the lambda-function module + IAM + log group
+# Hello-world Lambda, proving the lambda-function module + IAM + log group
 # pattern end-to-end before any real pipeline resources are added.
 module "hello_lambda" {
   source = "../../modules/lambda-function"

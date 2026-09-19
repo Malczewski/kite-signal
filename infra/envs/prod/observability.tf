@@ -1,4 +1,4 @@
-# Milestone 13. Single ops-alerts topic reused by every alarm (Lambda errors, DLQs, oldest-
+# Single ops-alerts topic reused by every alarm (Lambda errors, DLQs, oldest-
 # message-age, dead-man's-switch) and the budget below - one place to manage who gets paged.
 resource "aws_sns_topic" "ops_alerts" {
   name = "kite-signal-ops-alerts"
