@@ -56,14 +56,8 @@ admin UI.
 - `infra/` — Terraform: `bootstrap` (one-time state backend), `modules` (reusable building
   blocks), `envs/prod` (the actual deployed stack)
 - `spot-data/` — curated spot knowledge base + seed script
-- `docs/` — [`architecture-plan.md`](docs/architecture-plan.md) (design/decisions) and
-  [`manual-setup.md`](docs/manual-setup.md) (account setup, deployment, one-off manual steps)
 
 ## Getting started
-
-New to this repo? Start with [`docs/manual-setup.md`](docs/manual-setup.md) — it walks
-through AWS account setup, deploying the stack, creating the Telegram bot, and wiring up
-GitHub Actions, in the order you actually need them.
 
 ```sh
 npm install
