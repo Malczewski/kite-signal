@@ -14,15 +14,29 @@ notifications) are fully built. See [`docs/architecture-plan.md`](docs/architect
 for the full design, decisions, and roadmap (Stage 3: trip budget estimation, Stage 4: mobile
 app — not started).
 
-## How it works
+## Architecture
 
-```
-EventBridge Scheduler (every 3h)
-  -> forecast-fetcher   (Open-Meteo per active spot)
-  -> forecast-scorer    (scores wind direction/speed/gusts against each spot's rules)
-  -> EventBridge bus "GoodForecastDetected"
-  -> preference-matcher (matches against subscriber thresholds, dedups)
-  -> notifier           (sends via Telegram)
+```mermaid
+flowchart TD
+    SCHED([EventBridge Scheduler]) --> FETCH[forecast-fetcher]
+    FETCH --> OM[(Open-Meteo API)]
+    FETCH --> Q1[[SQS]]
+    Q1 --> SCORE[forecast-scorer]
+    SCORE --> BUS{{EventBridge bus}}
+    BUS --> Q2[[SQS]]
+    Q2 --> MATCH[preference-matcher]
+    MATCH --> Q3[[SQS]]
+    Q3 --> NOTIFY[notifier]
+    NOTIFY --> TGAPI[(Telegram Bot API)]
+    TGAPI --> TGUSER((You, on Telegram))
+
+    TGUSER -->|bot commands| TGAPI
+    TGAPI -->|webhook| APIGW([API Gateway])
+    APIGW --> HOOK[telegram-webhook]
+
+    FETCH -.-> DB[(DynamoDB)]
+    HOOK -.-> DB
+    MATCH -.-> DB
 ```
 
 Users manage subscriptions via Telegram bot commands (`/subscribe`, `/mysubs`, etc. — see
