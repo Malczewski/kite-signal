@@ -48,10 +48,14 @@ jobs:
       - name: terraform plan
         working-directory: infra/envs/prod
         run: terraform plan -input=false
+        env:
+          TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
 
       - name: terraform apply
         working-directory: infra/envs/prod
         run: terraform apply -auto-approve -input=false
+        env:
+          TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
 
       - name: Smoke test hello lambda
         run: |

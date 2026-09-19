@@ -28,11 +28,19 @@ resource "aws_sns_topic_policy" "ops_alerts" {
 }
 
 # Requires confirming a "subscribe" link AWS emails to alert_email - see docs/manual-setup.md.
+#
+# prevent_destroy guards against exactly what happened once already: some apply context
+# (e.g. CI) missing TF_VAR_alert_email/-var and silently planning to tear this down because
+# count drops to 0. If you're intentionally removing the email alert, comment this out first.
 resource "aws_sns_topic_subscription" "ops_alerts_email" {
   count     = var.alert_email != null ? 1 : 0
   topic_arn = aws_sns_topic.ops_alerts.arn
   protocol  = "email"
   endpoint  = var.alert_email
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Fires if forecast-fetcher hasn't run successfully in ~2x its 3h schedule - catches a
