@@ -12,14 +12,14 @@
     { "label": "Windfinder", "url": "https://www.windfinder.com/forecast/nin_zadarska_croatia" }
   ],
 
-  "idealWindDirRange": [315, 45],
-  "usableWindDirRange": [300, 60],
+  "idealWindDirRange": [300, 345],
+  "usableWindDirRange": [290, 55],
   "dangerousWindDirRanges": [],
 
-  "minWindKts": 8,
-  "idealWindKts": [14, 24],
+  "minWindKts": 10,
+  "idealWindKts": [14, 20],
   "maxWindKts": 35,
-  "gustToleranceKts": 6,
+  "gustToleranceKts": 9,
 
   "skillLevel": "beginner"
 }
