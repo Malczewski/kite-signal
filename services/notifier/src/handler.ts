@@ -65,6 +65,7 @@ export const handler = async (event: SqsEvent): Promise<void> => {
         const channel = await getChannel(job.channelType);
         await channel.send(job.target, job.message);
         sent += 1;
+        logger.debug('notification sent', { channelType: job.channelType, title: job.message.title });
       } catch (error) {
         failed += 1;
         logger.error('failed to send notification', { error: error as Error, channelType: job.channelType });

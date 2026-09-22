@@ -12,13 +12,13 @@
     { "label": "Windfinder", "url": "https://www.windfinder.com/forecast/alvor" }
   ],
 
-  "idealWindDirRange": [340, 20],
-  "usableWindDirRange": [320, 40],
-  "dangerousWindDirRanges": [],
+  "idealWindDirRange": [315, 360],
+  "usableWindDirRange": [300, 20],
+  "dangerousWindDirRanges": [[70, 110]],
 
-  "minWindKts": 15,
-  "idealWindKts": [18, 22],
-  "maxWindKts": 25,
+  "minWindKts": 11,
+  "idealWindKts": [16, 22],
+  "maxWindKts": 27,
   "gustToleranceKts": 6,
 
   "skillLevel": "beginner"

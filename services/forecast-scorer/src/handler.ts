@@ -89,15 +89,38 @@ export const handler = async (event: SqsEvent): Promise<void> => {
       const { spot, points } = JSON.parse(record.body) as ScoringMessage;
       const daylightPoints = filterDaylightPoints(spot.lat, spot.lon, points);
       const byDate = groupByUtcDate(daylightPoints);
+      logger.debug('scoring spot', {
+        spotId: spot.spotId,
+        pointCount: points.length,
+        daylightPointCount: daylightPoints.length,
+        dateCount: byDate.size,
+      });
 
       const qualifyingDays: DayWindow[] = [];
       for (const [date, dayPoints] of byDate) {
         daysScored += 1;
         const window = findBestWindow(spot, dayPoints, { minScoreThreshold, minDurationHours });
-        if (window) qualifyingDays.push(toDayWindow(date, window));
+        if (window) {
+          logger.debug('day qualified', {
+            spotId: spot.spotId,
+            date,
+            avgScore: window.avgScore,
+            durationHours: window.durationHours,
+            rating: window.rating,
+          });
+          qualifyingDays.push(toDayWindow(date, window));
+        } else {
+          logger.debug('day did not qualify', { spotId: spot.spotId, date, minScoreThreshold, minDurationHours });
+        }
       }
 
       for (const streak of groupConsecutiveDates(qualifyingDays)) {
+        logger.info('good-day streak detected', {
+          spotId: spot.spotId,
+          streakStartDate: streak[0]!.date,
+          streakEndDate: streak.at(-1)!.date,
+          streakLengthDays: streak.length,
+        });
         entries.push(toEntry(spot, streak));
       }
     }

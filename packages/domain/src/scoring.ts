@@ -1,9 +1,10 @@
 import { isDirectionInRange, angularDistanceOutsideRange, circularMeanDeg } from './direction.js';
 import type { Condition, ForecastPoint, PointScore, Quality, Rating, SpotKnowledge, WindowResult } from './types.js';
 
-const WEIGHTS = { direction: 0.5, speed: 0.3, gust: 0.2 };
+const WEIGHTS = { direction: 0.2, speed: 0.6, gust: 0.2 };
 const OFFSEASON_PENALTY = 0.1;
 const DANGEROUS_WIND_DIRECTION_HAZARD = 'dangerous-wind-direction';
+const BELOW_MINIMUM_WIND_HAZARD = 'below-minimum-wind';
 
 /** Fraction outside the usable range beyond which direction score bottoms out at 0. */
 const USABLE_FADE_DEGREES = 60;
@@ -73,16 +74,22 @@ function monthOf(timestamp: string): number {
 /** Pure per-point score. Hazardous wind direction hard-caps the score to 0 regardless of speed. */
 export function scorePoint(spot: SpotKnowledge, point: ForecastPoint): PointScore {
   const dir = directionScore(spot, point.windDirDeg);
+  const belowMinimumWind = point.windSpeedKts < spot.minWindKts;
   const hazardFlags: string[] = [];
   if (dir.hazard) hazardFlags.push(DANGEROUS_WIND_DIRECTION_HAZARD);
+  if (belowMinimumWind) hazardFlags.push(BELOW_MINIMUM_WIND_HAZARD);
 
-  let composite = dir.hazard
+  // Below the spot's minimum, kiting isn't viable at any direction/gust quality - hard-cap to 0
+  // rather than letting direction+gust alone float the composite to a false "good" score.
+  const hardCapped = dir.hazard || belowMinimumWind;
+
+  let composite = hardCapped
     ? 0
     : dir.score * WEIGHTS.direction +
       speedScore(spot, point.windSpeedKts) * WEIGHTS.speed +
       gustScore(spot, point.windSpeedKts, point.gustSpeedKts) * WEIGHTS.gust;
 
-  if (!dir.hazard && spot.seasonalityMonths?.length && !spot.seasonalityMonths.includes(monthOf(point.timestamp))) {
+  if (!hardCapped && spot.seasonalityMonths?.length && !spot.seasonalityMonths.includes(monthOf(point.timestamp))) {
     composite = Math.max(0, composite - OFFSEASON_PENALTY);
   }
 

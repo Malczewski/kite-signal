@@ -43,18 +43,24 @@ describe('scorePoint', () => {
 
   it('gives partial credit for a usable-but-not-ideal direction', () => {
     const result = scorePoint(spot, point({ windDirDeg: 190 }));
-    expect(result.score).toBe(80);
+    expect(result.score).toBe(92);
   });
 
   it('fades direction score toward 0 outside the usable range', () => {
     const result = scorePoint(spot, point({ windDirDeg: 280 }));
-    expect(result.score).toBe(75);
+    expect(result.score).toBe(90);
   });
 
-  it('degrades (but does not zero out) the composite when speed is below the spot minimum', () => {
+  it('weighs speed more heavily than direction: ideal speed with a merely usable direction beats ideal direction with mediocre speed', () => {
+    const usableDirectionIdealSpeed = scorePoint(spot, point({ windDirDeg: 190, windSpeedKts: 20, gustSpeedKts: 22 }));
+    const idealDirectionMediocreSpeed = scorePoint(spot, point({ windDirDeg: 225, windSpeedKts: 30, gustSpeedKts: 32 }));
+    expect(usableDirectionIdealSpeed.score).toBeGreaterThan(idealDirectionMediocreSpeed.score);
+  });
+
+  it('hard-caps the score to 0 when speed is below the spot minimum, regardless of direction', () => {
     const result = scorePoint(spot, point({ windSpeedKts: 5, gustSpeedKts: 6 }));
-    expect(result.score).toBe(70);
-    expect(result.hazardFlags).toEqual([]);
+    expect(result.score).toBe(0);
+    expect(result.hazardFlags).toContain('below-minimum-wind');
   });
 
   it('degrades the composite when gusts far exceed tolerance', () => {

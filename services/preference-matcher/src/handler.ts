@@ -74,6 +74,13 @@ export const handler = async (event: SqsEvent): Promise<void> => {
       const detail = parseGoodForecastDetected(envelope.detail);
 
       const subscriptions = await subscriptionRepository.listSubscribersForSpot(detail.spotId);
+      logger.debug('received GoodForecastDetected event', {
+        spotId: detail.spotId,
+        streakStartDate: detail.streakStartDate,
+        streakEndDate: detail.streakEndDate,
+        streakLengthDays: detail.streakLengthDays,
+        subscriberCount: subscriptions.length,
+      });
       if (subscriptions.length === 0) continue;
 
       const spot = await spotRepository.getById(detail.spotId);
@@ -84,7 +91,16 @@ export const handler = async (event: SqsEvent): Promise<void> => {
 
       for (const sub of subscriptions) {
         const run = qualifyingRun(detail, sub);
-        if (!run) continue;
+        if (!run) {
+          logger.debug('subscription did not qualify', {
+            userId: sub.userId,
+            spotId: detail.spotId,
+            minScoreThreshold: sub.minScoreThreshold,
+            minDurationHours: sub.minDurationHours,
+            minConsecutiveDays: sub.minConsecutiveDays ?? DEFAULT_MIN_CONSECUTIVE_DAYS,
+          });
+          continue;
+        }
 
         const runAvgScore = Math.round(run.reduce((sum, day) => sum + day.avgScore, 0) / run.length);
         const isNew = await notificationDedupRepository.markNotifiedIfNew(
@@ -95,6 +111,12 @@ export const handler = async (event: SqsEvent): Promise<void> => {
         );
         if (!isNew) {
           dedupSkips += 1;
+          logger.debug('dedup skip', {
+            userId: sub.userId,
+            spotId: detail.spotId,
+            runStartDate: run[0]!.date,
+            runEndDate: run.at(-1)!.date,
+          });
           continue;
         }
 
@@ -113,6 +135,14 @@ export const handler = async (event: SqsEvent): Promise<void> => {
             }),
           );
           notifyJobsEnqueued += 1;
+          logger.info('notify job enqueued', {
+            userId: sub.userId,
+            spotId: detail.spotId,
+            channelType: channel.channelType,
+            runStartDate: run[0]!.date,
+            runEndDate: run.at(-1)!.date,
+            runLengthDays: run.length,
+          });
         }
       }
     }
